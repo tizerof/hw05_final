@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load cache %}
+{% block title %}Последние обновления в вашей ленте{% endblock %}
+{% block header %}Последние обновления в вашей ленте{% endblock %}
+{% block content %}
+
+{% cache 20 follow_page %}
+<div class="container" style="max-width: 800px; margin: 0 auto">
+    {% include "includes/menu.html" with follow=True %}
+    {% for post in page %}
+        {% include "user/includes/post_item.html" with post=post %}
+    {% endfor %}
+    {% if page.has_other_pages %}
+        {% include "includes/paginator.html" with items=page paginator=paginator%}
+    {% endif %}
+    {% if paginator.count == 0 %}
+        <div class="card-body">
+            {% if user.follower.count == 0 %}
+                Вы не подписаны ни на одного автора.
+            {% else %}
+                Нет постов.
+            {% endif %}
+        </div>
+    {% endif %}
+    
+</div>
+{% endcache %}
+
+{% endblock %}

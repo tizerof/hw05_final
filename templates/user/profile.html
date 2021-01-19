@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ author.get_full_name }} @{{ author.username }}{% endblock %}
+{% block content %}
+    <div class="row">
+        {% include "user/includes/about_author.html" %}
+        <div class="col-md-9">                
+            {% for post in page %}
+                {% include "user/includes/post_item.html" %}
+            {% endfor %}
+            {% include "includes/paginator.html" %}
+        </div>
+    </div>
+{% endblock %}

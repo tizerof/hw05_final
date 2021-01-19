@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+{% load user_filters %}
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-3 mb-3 mt-1">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="h3">
+                                Технологии
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="h6 text-muted">
+                                Что использовалось при создании этого сайта
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card-body">
+                <div class="card-text">
+                    <p>
+                    <p>При создании сайта использовались эти технологии:</p>
+                    <ul>
+                        <li><strong><a href="https://www.djangoproject.com/">Django</a></strong> - один из самых
+                            популярных фреймворков для веб-приложений на Python,
+                            использующий шаблон проектирования <a
+                                href="https://ru.wikipedia.org/wiki/Model-View-Controller">MVC</a>.</li>
+                        <li><strong><a href="https://getbootstrap.com/">Bootstrap</a></strong> - свободный набор
+                            инструментов для создания сайтов и
+                            веб-приложений.</li>
+                    </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

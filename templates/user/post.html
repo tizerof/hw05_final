@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Пост №{{ post.id }}{% endblock %}
+{% block content %}
+    <div class="row">
+        {% include "user/includes/about_author.html" %}
+        <div class="col-md-9">
+            {% include "user/includes/post_item.html" %}
+            {% include "user/includes/comments.html" %}
+        </div>
+    </div>
+{% endblock %}
