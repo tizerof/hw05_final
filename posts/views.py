@@ -43,11 +43,10 @@ def new_post(request):
 
 
 def check_following(user, author):
-    if user.is_authenticated:
-        following = Follow.objects.filter(user=user, author=author).exists()
-    else:
-        following = False
-    return following
+    """Проверка подписки пользователя на автора."""
+    return user.is_authenticated and Follow.objects.filter(
+        user=user,
+        author=author).exists()
 
 
 def profile(request, username):
@@ -69,6 +68,7 @@ def profile(request, username):
 
 @login_required
 def profile_follow(request, username):
+    """view-функция подписки пользователя на автора."""
     author = get_object_or_404(User, username=username)
     if author != request.user:
         Follow.objects.get_or_create(author=author, user=request.user)
@@ -77,10 +77,10 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    unfollowed = Follow.objects.get(
+    """view-функция отписки пользователя от автора."""
+    Follow.objects.filter(
         author__username=username,
-        user=request.user)
-    unfollowed.delete()
+        user=request.user).delete()
     return redirect("profile", username=username)
 
 
@@ -142,24 +142,20 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
+    """view-функция добавления комментария к посту."""
     post = get_object_or_404(
         Post.objects.select_related("author"),
         id=post_id,
         author__username=username)
     form = CommentForm(request.POST or None)
     if request.method == "GET" or not form.is_valid():
-        context = {"post": post, "form": form, "is_new": False, }
-        return render(request, "post_new.html", context)
+        # пересылаем запрос во view-функцию поста,
+        # иначе потеряем заполненную форму комментария
+        return post_view(request=request, username=username, post_id=post_id)
     comment = form.save(commit=False)
     comment.post = post
     comment.author = request.user
     comment.save()
-    context = {
-        "author": post.author,
-        "post": post,
-        "comments": post.post_comments.all(),
-        "form": form
-    }
     return redirect("post", username=username, post_id=post_id)
 
 

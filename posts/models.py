@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 User = get_user_model()
 
@@ -26,7 +27,7 @@ class Post(models.Model):
         User,
         verbose_name="Автор",
         on_delete=models.CASCADE,
-        related_name="posts",)
+        related_name="posts")
     group = models.ForeignKey(
         Group,
         verbose_name="Группа",
@@ -34,18 +35,13 @@ class Post(models.Model):
         blank=True,
         null=True,
         related_name="group_posts",
-        help_text="Группа публикации поста",)
+        help_text="Группа публикации поста")
     image = models.ImageField(
-        upload_to='posts/',
+        upload_to="posts/",
         verbose_name="Изображение",
         blank=True,
         null=True,
-        help_text="Изображение поста",)
-
-    def get_absolute_url(self):
-        return reverse("post", kwargs={
-            "username": self.author,
-            "post_id": self.pk})
+        help_text="Изображение поста")
 
     class Meta:
         ordering = ("-pub_date",)
@@ -53,21 +49,35 @@ class Post(models.Model):
     def __str__(self):
         return self.text[:15]
 
+    def get_absolute_url(self):
+        return reverse("post", kwargs={
+            "username": self.author,
+            "post_id": self.pk})
+
+    def image_tag(self):
+        if self.image:
+            return mark_safe(
+                "<img src='/media/%s' style='height:120px;width:auto;'>"
+                % (self.image))
+        else:
+            return "Нет изображения"
+
 
 class Comment(models.Model):
+    """Модель комментариев."""
     post = models.ForeignKey(
         Post,
         verbose_name="Пост",
         on_delete=models.CASCADE,
-        related_name="post_comments",)
+        related_name="post_comments")
     author = models.ForeignKey(
         User,
         verbose_name="Автор",
         on_delete=models.CASCADE,
-        related_name="comments",)
+        related_name="comments")
     text = models.TextField(
         "Текст комментария",
-        help_text="Тут введите текст поста")
+        help_text="Тут введите текст комментария")
     created = models.DateTimeField("Дата комментария", auto_now_add=True)
 
     class Meta:
@@ -78,18 +88,19 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
+    """Модель подписки на пользователя."""
     user = models.ForeignKey(
         User,
         verbose_name="Подписчик",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name="follower",)
+        related_name="follower")
     author = models.ForeignKey(
         User,
         verbose_name="Автор",
         on_delete=models.CASCADE,
-        related_name="following",)
+        related_name="following")
 
     def __str__(self):
         return f"@{self.user.username} is follower @{self.author.username}"

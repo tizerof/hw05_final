@@ -15,6 +15,7 @@ MEDIA_ROOT = tempfile.mkdtemp()
 
 @override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class PostsPagesTests(TestCase):
+    """Класс тестов страниц приложения posts"""
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -160,18 +161,24 @@ class FollowViewsTests(TestCase):
         self.post = Post.objects.create(
             text="Текст сообщения",
             author=self.author)
+        self.user_followed = Follow.objects.create(
+            user=self.follower, author=self.author)
 
-    def test_user_following(self):
+    def test_user_follow(self):
         """Авторизованный пользователь может подписываться на
-        других пользователей и удалять их из подписок."""
+        других пользователей."""
         reverse_name_follow = reverse("profile_follow", kwargs={
             "username": self.author.username})
-        self.authorized_follower.get(reverse_name_follow)
+        self.authorized_not_follower.get(reverse_name_follow)
         self.assertTrue(
             Follow.objects.filter(
-                user=self.follower,
+                user=self.not_follower,
                 author=self.author).exists(),
             "Подписка на пользователя не работает")
+
+    def test_user_unfollow(self):
+        """Подписанный пользователь может удалять других пользователей
+        из подписок."""
         reverse_name_unfollow = reverse("profile_unfollow", kwargs={
             "username": self.author.username})
         self.authorized_follower.get(reverse_name_unfollow)
@@ -182,13 +189,20 @@ class FollowViewsTests(TestCase):
             "Удаление подписки на пользователя не работает")
 
     def test_follow_index_correct_context(self):
-        """Шаблон follow_index сформирован с правильным контекстом."""
-        Follow.objects.create(user=self.follower, author=self.author)
+        """Шаблон follow_index сформирован для подписанного пользователя 
+        с правильным контекстом."""
         reverse_name = reverse("follow_index")
         response_follow = self.authorized_follower.get(reverse_name)
-        self.assertEqual(response_follow.context.get("page")[0], self.post)
+        self.assertIn(
+            self.post, response_follow.context.get("page").object_list)
+
+    def test_not_follow_index_correct_context(self):
+        """Шаблон follow_index сформирован для неподписанного пользователя 
+        с правильным контекстом."""
+        reverse_name = reverse("follow_index")
         response_not_follow = self.authorized_not_follower.get(reverse_name)
-        self.assertNotEqual(response_not_follow.context.get("page"), self.post)
+        self.assertNotIn(
+            self.post, response_not_follow.context.get("page").object_list)
 
 
 class PaginatorViewsTest(TestCase):

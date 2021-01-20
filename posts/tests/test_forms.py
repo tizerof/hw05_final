@@ -58,6 +58,7 @@ class PostCreateFormTests(TestCase):
             },
         )
         for form_data in forms_data:
+            cache.clear()
             posts_count = Post.objects.count()
             response = self.authorized_client.post(
                 reverse("new_post"),
@@ -68,7 +69,10 @@ class PostCreateFormTests(TestCase):
             self.assertContains(
                 response, form_data["text"],
                 msg_prefix="Новый пост отсутствует на главной странице")
-            cache.clear()
+            if "image" in form_data:
+                self.assertTrue(
+                    Post.objects.get(text=form_data["text"]).image,
+                    "Изображение не добавлено к посту.")
 
     def test_invalid_form_doest_create_post(self):
         """Невалидная форма не создает запись Posts."""
@@ -102,6 +106,9 @@ class PostCreateFormTests(TestCase):
         post.refresh_from_db()
         self.assertEqual(post.group, self.test_group)
         self.assertEqual(post.text, form_data['text'])
+        self.assertTrue(
+            Post.objects.get(text=form_data["text"]).image,
+            "Изображение не добавлено к посту.")
         self.assertRedirects(response, post.get_absolute_url())
 
 
@@ -109,31 +116,37 @@ class CommentCreateFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.user = User.objects.create(username="testuser")
+        cls.post = Post.objects.create(
+            text="Текст поста",
+            author=cls.user)
+        cls.reverse_url = reverse("add_comment", kwargs={
+            "username": cls.user.username,
+            "post_id": cls.post.id})
+        cls.form_data = {"text": "Текст комментария"}
 
     def setUp(self):
         self.guest_client = Client()
-        self.user = User.objects.create(username="testuser")
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        self.post = Post.objects.create(
-            text="Текст поста",
-            author=self.user)
 
     def test_add_comment(self):
-        """Только авторизированный пользователь может комментировать посты."""
+        """Авторизированный пользователь может комментировать посты."""
         comment_count = Comment.objects.count()
-        reverse_url = reverse("add_comment", kwargs={
-            "username": self.user.username,
-            "post_id": self.post.id})
         form_data = {"text": "Текст комментария"}
-        self.authorized_client.post(reverse_url, data=form_data)
+        self.authorized_client.post(self.reverse_url, data=form_data)
         self.assertTrue(
             Comment.objects.filter(
                 post=self.post,
                 author=self.user,
                 text=form_data["text"]).exists(),
             "Форма комментариев не работает")
-        self.guest_client.post(reverse_url, data=form_data)
         self.assertEqual(
-            Post.objects.count(), comment_count + 1,
-            ("Неавторизованный пользователь может добавить комментарий"))
+            Comment.objects.count(), comment_count + 1,
+            "Комментарий не добавляется.")
+
+    def test_add_comment(self):
+        """Неавторизованный пользователь может не может добавить комментарий."""
+        comment_count = Comment.objects.count()
+        self.guest_client.post(self.reverse_url, data=self.form_data)
+        self.assertEqual(Comment.objects.count(), comment_count)

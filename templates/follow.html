@@ -14,7 +14,7 @@
     {% if page.has_other_pages %}
         {% include "includes/paginator.html" with items=page paginator=paginator%}
     {% endif %}
-    {% if paginator.count == 0 %}
+    {% if not paginator.count %}
         <div class="card-body">
             {% if user.follower.count == 0 %}
                 Вы не подписаны ни на одного автора.
