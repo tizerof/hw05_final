@@ -176,6 +176,14 @@ class FollowViewsTests(TestCase):
                 author=self.author).exists(),
             "Подписка на пользователя не работает")
 
+    def test_user_not_follow_himself(self):
+        """Пользователь не может подписываться сам на себя."""
+        reverse_name_follow = reverse("profile_follow", kwargs={
+            "username": self.follower.username})
+        self.authorized_follower.get(reverse_name_follow)
+        self.assertFalse(Follow.objects.filter(
+                user=self.follower,author=self.follower).exists())
+
     def test_user_unfollow(self):
         """Подписанный пользователь может удалять других пользователей
         из подписок."""
