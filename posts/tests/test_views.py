@@ -182,7 +182,7 @@ class FollowViewsTests(TestCase):
             "username": self.follower.username})
         self.authorized_follower.get(reverse_name_follow)
         self.assertFalse(Follow.objects.filter(
-                user=self.follower,author=self.follower).exists())
+            user=self.follower, author=self.follower).exists())
 
     def test_user_unfollow(self):
         """Подписанный пользователь может удалять других пользователей
