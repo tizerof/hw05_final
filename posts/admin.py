@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Comment, Follow, Group, Post
+from .models import Comment, Group, Post
 
 LIST_PER_PAGE = 10
 

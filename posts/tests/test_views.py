@@ -197,7 +197,7 @@ class FollowViewsTests(TestCase):
             "Удаление подписки на пользователя не работает")
 
     def test_follow_index_correct_context(self):
-        """Шаблон follow_index сформирован для подписанного пользователя 
+        """Шаблон follow_index сформирован для подписанного пользователя
         с правильным контекстом."""
         reverse_name = reverse("follow_index")
         response_follow = self.authorized_follower.get(reverse_name)
