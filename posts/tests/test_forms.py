@@ -102,14 +102,17 @@ class PostCreateFormTests(TestCase):
             "post_id": post.id})
         response = self.authorized_client.post(
             reverse_url,
-            data=form_data,)
+            data=form_data,
+            follow=True)
+        print(response.context)
         post.refresh_from_db()
         self.assertEqual(post.group, self.test_group)
         self.assertEqual(post.text, form_data['text'])
-        self.assertTrue(
-            Post.objects.get(text=form_data["text"]).image,
-            "Изображение не добавлено к посту.")
+        self.assertTrue(post.image, "Изображение не добавлено к посту.")
         self.assertRedirects(response, post.get_absolute_url())
+        self.assertEqual(
+            post, response.context.get("post"),
+            "Изменения на странице поста отображаются корректно")
 
 
 class CommentCreateFormTests(TestCase):
@@ -145,7 +148,7 @@ class CommentCreateFormTests(TestCase):
             Comment.objects.count(), comment_count + 1,
             "Комментарий не добавляется.")
 
-    def test_add_comment(self):
+    def test_not_authorized_add_comment(self):
         """Неавторизованный пользователь может не может добавить комментарий."""
         comment_count = Comment.objects.count()
         self.guest_client.post(self.reverse_url, data=self.form_data)

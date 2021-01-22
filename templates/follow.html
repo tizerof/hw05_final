@@ -16,7 +16,7 @@
     {% endif %}
     {% if not paginator.count %}
         <div class="card-body">
-            {% if user.follower.count == 0 %}
+            {% if not user.follower.count %}
                 Вы не подписаны ни на одного автора.
             {% else %}
                 Нет постов.

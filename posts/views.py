@@ -148,14 +148,11 @@ def add_comment(request, username, post_id):
         id=post_id,
         author__username=username)
     form = CommentForm(request.POST or None)
-    if request.method == "GET" or not form.is_valid():
-        # пересылаем запрос во view-функцию поста,
-        # иначе потеряем заполненную форму комментария
-        return post_view(request=request, username=username, post_id=post_id)
-    comment = form.save(commit=False)
-    comment.post = post
-    comment.author = request.user
-    comment.save()
+    if request.method == "POST" and form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = request.user
+        comment.save()
     return redirect("post", username=username, post_id=post_id)
 
 
