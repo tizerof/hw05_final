@@ -205,7 +205,7 @@ class FollowViewsTests(TestCase):
             self.post, response_follow.context.get("page").object_list)
 
     def test_not_follow_index_correct_context(self):
-        """Шаблон follow_index сформирован для неподписанного пользователя 
+        """Шаблон follow_index сформирован для неподписанного пользователя
         с правильным контекстом."""
         reverse_name = reverse("follow_index")
         response_not_follow = self.authorized_not_follower.get(reverse_name)

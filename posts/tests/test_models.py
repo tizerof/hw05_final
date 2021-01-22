@@ -15,7 +15,6 @@ class PostModelTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        text_example = "Тестовый текст поста, в нем 39 символов"
         cls.group = Group.objects.create(
             title="Заголовок тестовой группы",
             description="Описание группы",)
@@ -32,7 +31,7 @@ class PostModelTest(TestCase):
             content=small_jpeg,
             content_type='image/jpeg',)
         cls.post = Post.objects.create(
-            text=text_example,
+            text="Тестовый текст поста, в нем 39 символов",
             author=user,
             group=cls.group,
             image=upload_img)
@@ -97,14 +96,13 @@ class CommentModelTest(TestCase):
         cls.post = Post.objects.create(
             text="Тестовый текст",
             author=cls.user,)
-        text_example = "Тестовый текст комментария, в нем 45 символов"
+        cls.text_example = "Тестовый текст комментария, в нем 45 символов"
 
     def test_object_name_is_title_field(self):
         """В поле __str__  объекта Comment равно первым 15 символам поля text"""
-        text_example = "Тестовый текст комментария, в нем 45 символов"
         comment = Comment.objects.create(
             post=self.post,
-            text=text_example,
+            text=self.text_example,
             author=self.user,)
         expected_object_name = comment.text[:15]
         self.assertEqual(expected_object_name, str(comment))
@@ -118,7 +116,7 @@ class FollowModelTest(TestCase):
         cls.author = User.objects.create(username="author")
 
     def test_object_name_is_title_field(self):
-        """В поле __str__  объекта Follow отображается 
+        """В поле __str__  объекта Follow отображается
         никнеймы автора и подписчика. """
         follow = Follow.objects.create(user=self.follower, author=self.author)
         expected_object_name = (f"@{self.follower.username}"
