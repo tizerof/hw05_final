@@ -104,7 +104,6 @@ class PostCreateFormTests(TestCase):
             reverse_url,
             data=form_data,
             follow=True)
-        print(response.context)
         post.refresh_from_db()
         self.assertEqual(post.group, self.test_group)
         self.assertEqual(post.text, form_data['text'])
